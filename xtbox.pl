@@ -22,7 +22,8 @@ my $client = new Tinderbox::Client({
     Dir       => $dir,
     'Failure Strings' => ['DIED', 'FAILED', '^C ', 'Result: FAIL'],
     'Warning Strings' => ['UNEXPECTEDLY SUCCEEDED',
-                          'unexpectedly succeeded'],
+                          'unexpectedly succeeded',
+                          'TODO passed: '],
 });
 
 $client->run();
