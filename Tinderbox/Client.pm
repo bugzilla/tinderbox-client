@@ -20,7 +20,7 @@ package Tinderbox::Client;
 # We segfault on perl 5.6.0.
 use 5.006001;
 
-our $VERSION = '2.00';
+our $VERSION = '2.01';
 
 use Tinderbox::Client::Config;
 use Tinderbox::Client::Mailer;
