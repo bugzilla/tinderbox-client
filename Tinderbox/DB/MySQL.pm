@@ -87,19 +87,12 @@ sub copy_db {
             $extra_args = "--tab=$dump_dir";
         }
 
-        my $command = 'mysqldump';
-        if ($from_host) {
-            # Limit bandwidth using trickle, so that we don't overwhelm
-            # the DB host.
-            $command = "trickle -s -d 500 $command";
-        }
-
         print "Creating $to...\n";
         system("mysqladmin -u $user -p$pass create $to");
         print "Dumping $from...";
         my $start = time;
         my ($ok, $err, $all, $stdout, $stderr) = IPC::Cmd::run(
-            command => "$command --opt -u $user -p$pass"
+            command => "mysqldump --opt -u $user -p$pass"
                        . " $from $extra_args");
         my $seconds = time - $start;
         print "($seconds seconds)\n";
