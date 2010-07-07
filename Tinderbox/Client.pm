@@ -145,11 +145,19 @@ sub check_stderr {
 }
 
 sub check_if_run_needed {
-    # XXX This is NOT cross-platform compatible.
-    # If we're up-to-date on our cvs checkout...
-    my $cvs_output = "";
-    $cvs_output = `cvs status 2>&1 | grep 'Status:' | egrep -v 'Up-to-date|status: Examining|Locally Modified'`;
-    return $cvs_output;
+    if (-d 'CVS') {
+        # XXX This is NOT cross-platform compatible.
+        # If we're up-to-date on our cvs checkout...
+        my $cvs_output = "";
+        $cvs_output = `cvs status 2>&1 | grep 'Status:' | egrep -v 'Up-to-date|status: Examining|Locally Modified'`;
+        return $cvs_output;
+    }
+
+    my $missing = system("bzr missing --theirs-only");
+# Exit values:
+#    1 - some missing revisions
+#    0 - no missing revisions
+    return $missing;
 }
 
 sub failure {
@@ -255,7 +263,6 @@ sub run_once {
 * Starting tinderbox session at $self->{start_time}...
 * machine administrator is $self->{email_from}
 * tinderbox version is $VERSION: for $self->{tinderbox_name} $self->{build_name}
-* perl cvs mode enabled
 *****************************************************
 
 END
@@ -307,9 +314,16 @@ END
     $self->send_mail();
     $self->save_last_run();
 
-    print "* Running cvs update...\n";
-    print `cvs -q update -dP 2>&1`;
-    print "* cvs update complete\n";
+    if (-d 'CVS') {
+        print "* Running cvs update...\n";
+        print `cvs -q update -dP 2>&1`;
+        print "* cvs update complete\n";
+    }
+    else {
+        print "* Running bzr pull...\n";
+        print `bzr pull 2>&1`;
+        print "* bzr pull complete\n";
+    }
     print "*****************************************************\n\n";
 
     if ($self->check_errors({print_errors => 1})) {
