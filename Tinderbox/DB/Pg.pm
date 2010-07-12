@@ -97,23 +97,9 @@ sub create_schema_map {
     foreach my $table (@$tables) {
         system("pg_dump -Oxs -U $user -t $table $for_db > $table.sql");
     }
-    # Remove the comments
-    system(q{sed -i 's/^--.*$//' *.sql});
-    # Remove commas from ends of lines, because they can cause
-    # false positives when we check for schema differences
-    system(q{sed -i 's/,$//' *.sql});
-    # We don't really care about the DB encoding, since Bugzilla
-    # doesn't specify one on creation.
-    system(q{sed -i 's/^SET client_encoding.*$//' *.sql});
-    # default_with_oids doesn't matter
-    system(q{sed -i 's/^SET default_with_oids.*$//' *.sql});
-    # "integer DEFAULT nextval" is the same as serial.
-    system($^X . q{ -pi -e 's/integer DEFAULT nextval\(\S+\)/serial/' *.sql});
-    # START WITH \d+ is some extra sequence stuff that shows up in populated
-    # DBs that doesn't show up in empty DBs.
-    system($^X . q{ -pi -e 's/^\s+START WITH \d+$//' *.sql});
-    # Remove all the lines that are just empty space.
-    system($^X . q{ -pi -e 's/^\n$//ms' *.sql});
+    foreach my $file (glob '*.sql') {
+        _fix_sql_file($file);
+    }
     # Create the sorted map
     system("find . -name \\*.sql -exec sort \\{\\}"
            . " -o ../$sorted_dir/\\{\\} \\;");
@@ -122,6 +108,34 @@ sub create_schema_map {
 
     File::Path::rmtree($schema_dir);
     return $sorted_dir;
+}
+
+sub _fix_sql_file {
+    my ($name) = @_;
+    open(my $fh, '<', $name) || die "$name: $!";
+    my $content;
+    { local $/; $content = <$fh>; }
+    close $fh;
+    # Remove the comments
+    $content =~ s/^--.*$//gms;
+    # Remove commas from ends of lines, because they can cause
+    # false positives when we check for schema differences
+    $content =~ s/,$//gms;
+    # We don't really care about the DB encoding, since Bugzilla
+    # doesn't specify one on creation.
+    $content =~ s/^SET client_encoding.*$//gms;
+    # default_with_oids doesn't matter
+    $content =~ s/^SET default_with_oids.*$//gms;
+    # "integer DEFAULT nextval" is the same as serial, but in Pg 8.3,
+    # that's just represented as "integer" here.
+    $content =~ s/integer DEFAULT nextval\(\S+\)/integer/g;
+    # START WITH \d+ is some extra sequence stuff that shows up in populated
+    # DBs that doesn't show up in empty DBs.
+    $content =~ s/^\s+START WITH \d+$//gms;
+    # Remove all the lines that are just empty space.
+    $content =~ s/^\n$//gms;
+    open(my $write_fh, '>', $name) || die "$name: $!";
+    print $write_fh $content;
 }
 
 sub sql_random { return "RANDOM()"; }
