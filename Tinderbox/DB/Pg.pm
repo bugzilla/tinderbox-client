@@ -109,6 +109,9 @@ sub create_schema_map {
     system(q{sed -i 's/^SET default_with_oids.*$//' *.sql});
     # "integer DEFAULT nextval" is the same as serial.
     system($^X . q{ -pi -e 's/integer DEFAULT nextval\(\S+\)/serial/' *.sql});
+    # START WITH \d+ is some extra sequence stuff that shows up in populated
+    # DBs that doesn't show up in empty DBs.
+    system($^X . q{ -pi -e 's/^\s+START WITH \d+$//' *.sql});
     # Remove all the lines that are just empty space.
     system($^X . q{ -pi -e 's/^\n$//ms' *.sql});
     # Create the sorted map
