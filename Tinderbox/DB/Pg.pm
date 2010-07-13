@@ -117,25 +117,26 @@ sub _fix_sql_file {
     { local $/; $content = <$fh>; }
     close $fh;
     # Remove the comments
-    $content =~ s/^--.*$//gms;
+    $content =~ s/^--.*$//gm;
     # Remove commas from ends of lines, because they can cause
     # false positives when we check for schema differences
-    $content =~ s/,$//gms;
+    $content =~ s/,$//gm;
     # We don't really care about the DB encoding, since Bugzilla
     # doesn't specify one on creation.
-    $content =~ s/^SET client_encoding.*$//gms;
+    $content =~ s/^SET client_encoding.*$//gm;
     # default_with_oids doesn't matter
-    $content =~ s/^SET default_with_oids.*$//gms;
+    $content =~ s/^SET default_with_oids.*$//gm;
     # "integer DEFAULT nextval" is the same as serial, but in Pg 8.3,
     # that's just represented as "integer" here.
     $content =~ s/integer DEFAULT nextval\(\S+\)/integer/g;
     # START WITH \d+ is some extra sequence stuff that shows up in populated
     # DBs that doesn't show up in empty DBs.
-    $content =~ s/^\s+START WITH \d+$//gms;
+    $content =~ s/^\s+START WITH \d+$//gm;
     # Remove all the lines that are just empty space.
-    $content =~ s/^\n$//gms;
+    $content =~ s/^\n//gm;
     open(my $write_fh, '>', $name) || die "$name: $!";
     print $write_fh $content;
+    close $write_fh;
 }
 
 sub sql_random { return "RANDOM()"; }
