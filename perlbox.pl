@@ -28,7 +28,7 @@ my $client = new Tinderbox::Client({
     To        => 'tinderbox-daemon@tinderbox.mozilla.org',
     Tinderbox => $tinderbox,
     Build     => "perl $perl cg-bugs01",
-    Commands  => ["perl$perl -w install-module.pl $install_switch 2> /dev/null",
+    Commands  => ["perl$perl install-module.pl $install_switch 2> /dev/null",
                   "perl$perl -w checksetup.pl --check-modules",
                   "perl$perl -w runtests.pl --verbose"],
     Dir       => $dir,
