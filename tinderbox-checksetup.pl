@@ -6,7 +6,6 @@ require 5.0006;
 use Tinderbox::Client;
 
 my $client = new Tinderbox::Client({
-    Lock      => '.qa-lock',
     Admin     => 'mkanat@bugzilla.org',
     To        => 'tinderbox-daemon@tinderbox.mozilla.org',
     Sleep     => 1202,
