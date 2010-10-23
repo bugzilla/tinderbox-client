@@ -92,7 +92,7 @@ sub copy_db {
         print "Dumping $from...";
         my $start = time;
         my ($ok, $err, $all, $stdout, $stderr) = IPC::Cmd::run(
-            command => "mysqldump --opt -u $user -p$pass"
+            command => "mysqldump --opt --single-transaction -u $user -p$pass"
                        . " $from $extra_args");
         my $seconds = time - $start;
         print "($seconds seconds)\n";
