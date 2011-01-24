@@ -25,7 +25,7 @@
 #      2.10 to the tip.
 
 use strict;
-use lib '..';
+use lib qw(. lib ..);
 
 use Carp;
 use File::Basename;
