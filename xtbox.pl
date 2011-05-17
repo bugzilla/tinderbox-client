@@ -13,9 +13,10 @@ GetOptions(\%switch, 'long=s');
 
 my $db = $ARGV[0] || 'MySQL';
 my $branch = $ARGV[1] || '';
+my $long = $switch{'long'};
 my $dir = "xtbox-" . lc($db);
 $dir .= "-$branch" if $branch;
-my $long = $switch{'long'};
+$dir .= "-$long" if $long;
 my $long_args = $long ? " --long --top-operators=$long" : "";
 
 my $client = new Tinderbox::Client({
