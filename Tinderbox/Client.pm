@@ -38,6 +38,7 @@ use fields qw(
     tinderbox_name
     build_name
     start_time
+    end_time
     current_status
     failure_strings
     lock_file
@@ -203,6 +204,7 @@ sub _reset {
     my ($self) = @_;
 
     $self->{start_time}      = 0;
+    $self->{end_time}        = 0;
     $self->{current_status}  = '';
     $self->{_log_handle}->truncate();
     $self->{_log_handle}->seek(0, SEEK_SET);
@@ -367,6 +369,7 @@ END
         $self->{current_status} = 'success';
     }
 
+    $self->{end_time} = time();
     $self->send_mail();
 }
 

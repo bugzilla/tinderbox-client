@@ -41,16 +41,24 @@ sub create_mail {
     $mail->header_set('From', $self->{_tinderbox}->{email_from});
     $mail->header_set('Errors-To', $self->{_tinderbox}->{email_to});
     $mail->header_set('To', $self->{_tinderbox}->{email_to});
-    $mail->header_set('Subject', 'Tinderbox: ' . $self->{_tinderbox}->{tinderbox_name}
-                                 . ' ' . $self->{_tinderbox}->{build_name}
-                                 . ' ' . $self->{_tinderbox}->{start_time});
+    $mail->header_set('Subject', 
+        'Tinderbox: ' . $self->{_tinderbox}->{tinderbox_name}
+                      . ' ' . $self->{_tinderbox}->{build_name}
+                      . ' ' . $self->{_tinderbox}->{start_time});
 
-    my $body  = "tinderbox: builddate: " . $self->{_tinderbox}->{start_time} . "\n";
-    $body .= "tinderbox: tree: "   . $self->{_tinderbox}->{tinderbox_name}   . "\n";
-    $body .= "tinderbox: status: " . $self->{_tinderbox}->{current_status}   . "\n";
-    $body .= "tinderbox: build: "  . $self->{_tinderbox}->{build_name}       . "\n";
-    $body .= "tinderbox: errorparser: unix\ntinderbox: buildfamily: unix\n\n";
-    $body .= $self->{_tinderbox}->{tinderbox_log};
+    my $body = <<END;
+tinderbox: builddate: $self->{_tinderbox}->{start_time}
+tinderbox: tree: $self->{_tinderbox}->{tinderbox_name}
+tinderbox: status: $self->{_tinderbox}->{current_status}
+tinderbox: build: $self->{_tinderbox}->{build_name}
+tinderbox: errorparser: unix
+tinderbox: buildfamily: unix
+END
+    chomp($body);
+    if ($self->{_tinderbox}->{end_time}) {
+        $body.= "tinderbox: buildenddate: $self->{_tinderbox}->{end_time}\n";
+    }
+    $body .= "\n\n" . $self->{_tinderbox}->{tinderbox_log};
     $mail->body_set($body);
 
     return $mail;
