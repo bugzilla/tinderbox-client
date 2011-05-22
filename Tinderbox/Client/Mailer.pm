@@ -17,8 +17,10 @@
 use strict;
 package Tinderbox::Client::Mailer;
 
+use Compress::Bzip2 qw(memBzip);
 use Email::Simple;
 use Email::Send;
+use MIME::Base64 qw(encode_base64);
 use Tinderbox::Client::Config;
 
 use fields qw(
@@ -58,7 +60,19 @@ END
     if ($self->{_tinderbox}->{end_time}) {
         $body.= "tinderbox: buildenddate: $self->{_tinderbox}->{end_time}\n";
     }
-    $body .= "\n\n" . $self->{_tinderbox}->{tinderbox_log};
+
+    if ($self->{_tinderbox}->{compress_mail}) {
+        $body .= <<END;
+tinderbox: logencoding: base64
+tinderbox: logcompression: bzip2
+END
+        my $compressed = memBzip($self->{_tinderbox}->{tinderbox_log});
+        $compressed = encode_base64($compressed);
+        $body.= "\n\n" . $compressed;
+    }
+    else {
+        $body .= "\n\n" . $self->{_tinderbox}->{tinderbox_log};
+    }
     $mail->body_set($body);
 
     return $mail;

@@ -86,6 +86,7 @@ sub new {
     $self->{max_idle_time}     = ($params->{Idle}   || DEFAULT_IDLE_TIME);
     $self->{run_dir}           = ($params->{Dir}    || dirname(abs_path($0)));
     $self->{print_environment} = ($params->{Env}    || 1);
+    $self->{compress_mail}     = ($params->{Compress} || 0);
 
     if (my $lock = $params->{Lock}) {
         $self->{lock_handle} = IO::File->new($lock, '>>') || die "$lock: $!";
