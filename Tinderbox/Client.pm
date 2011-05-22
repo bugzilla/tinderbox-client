@@ -35,6 +35,7 @@ use File::Basename;
 use fields qw(
     email_from
     email_to
+    compress_mail
     tinderbox_name
     build_name
     start_time

@@ -29,6 +29,7 @@ my $client = new Tinderbox::Client({
                   "$^X -Mlib=lib /home/tinderbox/bin/prove -v xt/ ::"
                   . " --add-custom-fields$long_args"],
     Dir       => $dir,
+    Compress  => $long,
     'Failure Strings' => ['DIED', 'FAILED', '^C ', 'Result: FAIL'],
     'Warning Strings' => ['UNEXPECTEDLY SUCCEEDED',
                           'unexpectedly succeeded',

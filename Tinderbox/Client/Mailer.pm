@@ -56,7 +56,7 @@ tinderbox: build: $self->{_tinderbox}->{build_name}
 tinderbox: errorparser: unix
 tinderbox: buildfamily: unix
 END
-    chomp($body);
+
     if ($self->{_tinderbox}->{end_time}) {
         $body.= "tinderbox: buildenddate: $self->{_tinderbox}->{end_time}\n";
     }
@@ -68,10 +68,10 @@ tinderbox: logcompression: bzip2
 END
         my $compressed = memBzip($self->{_tinderbox}->{tinderbox_log});
         $compressed = encode_base64($compressed);
-        $body.= "\n\n" . $compressed;
+        $body.= "\n" . $compressed;
     }
     else {
-        $body .= "\n\n" . $self->{_tinderbox}->{tinderbox_log};
+        $body .= "\n" . $self->{_tinderbox}->{tinderbox_log};
     }
     $mail->body_set($body);
 
