@@ -69,7 +69,7 @@ use constant TINDERBOX_PAGE => "Bugzilla";
 # set this to the email address of the person who should
 # get trouble reports and who the tinderbox puts in the "From"
 # header of emails it sends.
-use constant ADMIN => 'mkanat@bugzilla.org';
+use constant ADMIN => 'wicked@sci.fi';
 #===========================================================
 
 #===========================================================

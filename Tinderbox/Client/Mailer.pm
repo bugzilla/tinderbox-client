@@ -17,10 +17,11 @@
 use strict;
 package Tinderbox::Client::Mailer;
 
-use Compress::Bzip2 qw(memBzip);
+use Compress::Bzip2 qw(bzdeflateInit);
 use Email::Simple;
 use Email::Send;
 use MIME::Base64 qw(encode_base64);
+use IO::String;
 use Tinderbox::Client::Config;
 
 use fields qw(
@@ -65,9 +66,14 @@ END
         $body .= <<END;
 tinderbox: logencoding: base64
 tinderbox: logcompression: bzip2
+tinderbox: END
 END
-        my $compressed = memBzip($self->{_tinderbox}->{tinderbox_log});
-        $compressed = encode_base64($compressed);
+        # Can't use memBzip() because it's output is not compatible w/TB Server
+        my $fh = new IO::String();
+        my $bz = bzdeflateInit();
+        print $fh scalar($bz->bzdeflate($self->{_tinderbox}->{tinderbox_log}));
+        print $fh scalar($bz->bzclose());
+        my $compressed = encode_base64(${$fh->string_ref});
         $body.= "\n" . $compressed;
     }
     else {

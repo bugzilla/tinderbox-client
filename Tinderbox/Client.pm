@@ -20,7 +20,7 @@ package Tinderbox::Client;
 # We segfault on perl 5.6.0.
 use 5.006001;
 
-our $VERSION = '2.01';
+our $VERSION = '2.03';
 
 use Tinderbox::Client::Config;
 use Tinderbox::Client::Mailer;
@@ -31,6 +31,7 @@ use IO::File;
 use IO::String;
 use File::Temp;
 use File::Basename;
+use Date::Format;
 
 use fields qw(
     email_from
@@ -86,7 +87,7 @@ sub new {
     $self->{sleep_time}        = ($params->{Sleep}  || DEFAULT_SLEEP_TIME);
     $self->{max_idle_time}     = ($params->{Idle}   || DEFAULT_IDLE_TIME);
     $self->{run_dir}           = ($params->{Dir}    || dirname(abs_path($0)));
-    $self->{print_environment} = ($params->{Env}    || 1);
+    $self->{print_environment} = ($params->{Env}    || 0);
     $self->{compress_mail}     = ($params->{Compress} || 0);
 
     if (my $lock = $params->{Lock}) {
@@ -217,8 +218,12 @@ sub _reset {
 sub _take_lock {
     my $self = shift;
     return if !$self->{lock_handle};
-    print "Waiting for lock on " . $self->{lock_file} . "...\n";
+    my $lock_start = time();
+    print "* Waiting for lock on " . $self->{lock_file} . "...\n";
     flock($self->{lock_handle}, LOCK_EX);
+    my $lock_end = time();
+    my $wait_sec = $lock_end - $lock_start;
+    print "* Done! Waited for lock $wait_sec seconds until " . $self->_format_time($lock_end) . "\n";
 }
 
 sub _release_lock {
@@ -227,17 +232,20 @@ sub _release_lock {
     flock($self->{lock_handle}, LOCK_UN);
 }
 
+sub _format_time {
+    my ($self, $time) = @_;
+    return time2str("%Y-%m-%d %H:%M %Z", $time) . " (" . $time . ")";
+}
+
 sub run {
     my ($self) = @_;
 
     while (1) {
-        $self->_take_lock();
         $self->run_once();
-        $self->_release_lock();
         # We don't want to sleep the full time if we already took a while
         # to run.
-        my $sleep_time = $self->{sleep_time} - (time() - $self->{start_time});
-        $sleep_time = 0 if $sleep_time < 0;
+        my $sleep_time = $self->{sleep_time};# - (time() - $self->{start_time});
+        #$sleep_time = 0 if $sleep_time < 0;
         print "\nSleeping $sleep_time seconds...\n";
         sleep($sleep_time);
     }
@@ -262,9 +270,10 @@ sub run_once {
     tie local *STDERR, 'Tinderbox::Client::TEE', $old_stderr, $self->{_log_handle};
 
     # Print the init message
+    my $formatted_time = $self->_format_time($self->{start_time});
     print <<END;
 *****************************************************
-* Starting tinderbox session at $self->{start_time}...
+* Starting tinderbox session at $formatted_time...
 * machine administrator is $self->{email_from}
 * tinderbox version is $VERSION: for $self->{tinderbox_name} $self->{build_name}
 *****************************************************
@@ -313,7 +322,9 @@ END
     }
 
     # This is where a "run" officially starts.
+    $self->_take_lock();
     $self->{current_status} = 'building';
+    $self->{start_time} = time();
     # Send the mail that says we're underway.
     $self->send_mail();
     $self->save_last_run();
@@ -332,6 +343,7 @@ END
 
     if ($self->check_errors({print_errors => 1})) {
         $self->failure();
+        $self->_release_lock();
         return;
     }
 
@@ -339,7 +351,7 @@ END
         print "*****************************************************\n";
         print "* Running $command...\n";
         if ($self->{check_stderr}) {
-            my $error_fh = new File::Temp(DIR => $self->{self_dir});
+            my $error_fh = new File::Temp();
             my $error_filename = $error_fh->filename;
             # This is so that we can scan the error log for messages.
             my $full_command = '((' . $command . ')' .  
@@ -373,6 +385,7 @@ END
 
     $self->{end_time} = time();
     $self->send_mail();
+    $self->_release_lock();
 }
 
 # XXX Need to handle admin notifications for failures.
