@@ -12,15 +12,15 @@ use POSIX;
 POSIX::setlocale(POSIX::LC_CTYPE, 'C');
 
 my $client = new Tinderbox::Client({
-    Admin     => 'mkanat@bugzilla.org',
+    Admin     => 'wicked@sci.fi',
     To        => 'tinderbox-daemon@tinderbox.mozilla.org',
     Sleep     => '1200',
     Tinderbox => 'Bugzilla',
     Build     => 'checksetup-pg cg-bugs01',
-    Commands  => ["$^X -w ../test-checksetup.pl"
+    Commands  => ["../test-checksetup.pl"
                   . " --config=../config-test-checksetup-pg --full"], 
     Dir       => 'checksetup-pg/',
-    'Failure Strings' => ['[checkout aborted]', 'FAILED', 
+    'Failure Strings' => ['[checkout aborted]', 'FAILED', 'bzr: ERROR:',
                           ': cannot find module', '^C ',
                           'No CVSROOT specified!'],
 });

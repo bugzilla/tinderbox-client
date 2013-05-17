@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/opt/perl-5.10.1/bin/perl -w -Ilib-5101
 # -*- Mode: perl; indent-tabs-mode: nil -*-
 #
 # The contents of this file are subject to the Mozilla Public
@@ -111,12 +111,13 @@ sub switchdb {
 sub run_against_db (;$$$) {
     my ($db_name, $quickly, $skip_schema) = @_;
     my $checksetup_switches = "--verbose ";
+    my $checksetup_perl = "/opt/perl-5.10.1/bin/perl -w";
     my $failures = 0;
     $checksetup_switches .= " --no-templates" if $quickly;
     switchdb($db_name) if $db_name;
     # Enable the Voting extension
     unlink 'extensions/Voting/disabled';
-    $failures += (system("./checksetup.pl $Answers_File $checksetup_switches") != 0);
+    $failures += (system("$checksetup_perl ./checksetup.pl $Answers_File $checksetup_switches") != 0);
     # For the sake of consistency, now disable the extension.
     system('touch extensions/Voting/disabled');
     # Run tests against the created database only if checksetup ran.

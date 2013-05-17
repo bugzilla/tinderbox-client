@@ -9,10 +9,9 @@ use constant CONFIG => {
     db_user  => 'bugs',
     db_pass  => '',
     answers  => '/home/tinderbox/answers',
-    copy_dbs => [qw(
-        bugs_tip
-        bugs_bugzilla3_6_branch
-    )],
+    # Databases bugs_tip and bugs_bugzill3_6_branch are replicated from
+    # landfill so no need to copy them manually (which takes about 500+200 sec)
+    #copy_dbs => [qw()],
     # I don't think there are going to be any more DB changes on 
     # these branches.
     #    bugs_bugzilla3_4_branch
@@ -86,6 +85,13 @@ use constant CONFIG => {
         '3.5.1'   => 'bugs_3_5_1',
         '3.5.3'   => 'bugs_3_5_3',
         '3.6'     => 'bugs_3_6',
+        '3.7.1'   => 'bugs_3_7_1',
+        '3.7.2'   => 'bugs_3_7_2',
+        '3.7.3'   => 'bugs_3_7_3',
+        '4.1.1'   => 'bugs_4_1_1',
+        # No DB changes between 4.1.1 and 4.1.2.
+        '4.1.3'   => 'bugs_4_1_3',
+        '4.2rc1'  => 'bugs_4_2rc1',
     },
 };
 

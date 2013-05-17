@@ -24,7 +24,7 @@ my $install_switch = $do_upgrade ? '--upgrade-all' : '--all';
 
 my $client = new Tinderbox::Client({
     Lock      => ".${branch_no_dots}-lock",
-    Admin     => 'mkanat@bugzilla.org',
+    Admin     => 'wicked@sci.fi',
     To        => 'tinderbox-daemon@tinderbox.mozilla.org',
     Tinderbox => $tinderbox,
     Build     => "perl $perl cg-bugs01",
@@ -32,7 +32,7 @@ my $client = new Tinderbox::Client({
                   "perl$perl -w checksetup.pl --check-modules",
                   "perl$perl -w runtests.pl --verbose"],
     Dir       => $dir,
-    'Failure Strings' => ['[checkout aborted]', '--ERROR',
+    'Failure Strings' => ['[checkout aborted]', '--ERROR', 'bzr: ERROR:',
                           ': cannot find module', '^C '],
     'Warning Strings' => ['--WARNING'],
 });

@@ -27,16 +27,17 @@ delete $ENV{TERMCAP};
 
 my $branch = $ARGV[0];
 my $tinderbox = $branch eq 'tip' ? "Bugzilla" : "Bugzilla$branch";
+my $perl = $branch eq 'tip' ? '/opt/perl-5.10.1/bin/perl -w': $^X;
 
 my $client = new Tinderbox::Client({
     Lock      => '.docs-lock',
-    Admin     => 'mkanat@bugzilla.org',
+    Admin     => 'wicked@sci.fi',
     To        => 'tinderbox-daemon@tinderbox.mozilla.org',
     Tinderbox => $tinderbox,
-    Build     => 'documentation cg-bugs01',
-    Commands  => ["cd docs; $^X makedocs.pl"],
+    Build     => "documentation cg-bugs01",
+    Commands  => ["cd docs; $perl makedocs.pl", "sleep 1m"],
     Dir       => "bugzilla-$branch-docs",
-    'Failure Strings' => ['[checkout aborted]', '--ERROR', '^C ',
+    'Failure Strings' => ['[checkout aborted]', '--ERROR', '^C ', 'bzr: ERROR:',
                           ': cannot find module', 'E:'],
     'Warning Strings' => ['W:'],
 });

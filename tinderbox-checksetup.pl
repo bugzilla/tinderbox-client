@@ -6,14 +6,15 @@ require 5.0006;
 use Tinderbox::Client;
 
 my $client = new Tinderbox::Client({
-    Admin     => 'mkanat@bugzilla.org',
+    Lock      => '.qa-lock', # Prevents random QA orange
+    Admin     => 'wicked@sci.fi',
     To        => 'tinderbox-daemon@tinderbox.mozilla.org',
     Sleep     => 1202,
     Tinderbox => 'Bugzilla',
     Build     => 'checksetup cg-bugs01',
-    Commands  => ["$^X -w ../test-checksetup.pl --full"], 
+    Commands  => ["../test-checksetup.pl --full"],
     Dir       => 'checksetup/',
-    'Failure Strings' => ['[checkout aborted]', 'FAILED', 
+    'Failure Strings' => ['[checkout aborted]', 'FAILED', 'bzr: ERROR:',
                           ': cannot find module', '^C ',
                           'No CVSROOT specified!'],
 });
