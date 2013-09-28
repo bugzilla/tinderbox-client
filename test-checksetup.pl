@@ -275,8 +275,8 @@ sub test_created_database () {
     };
 
     # Disconnect so that Pg doesn't complain we're still using the DB.
-    $dbh->disconnect; delete Bugzilla->request_cache->{dbh};
-    delete Bugzilla->request_cache->{dbh_main};
+    $dbh->disconnect;
+    Bugzilla->clear_request_cache();
 
     return $Test_Die_Count;
 }
