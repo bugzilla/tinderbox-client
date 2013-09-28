@@ -122,7 +122,7 @@ sub run_against_db (;$$$) {
     system('touch extensions/Voting/disabled');
     # Run tests against the created database only if checksetup ran.
     if(!$failures && !$skip_schema) {
-        print "Validating the created the schema...\n";
+        print "Validating the created schema...\n";
         check_schema($My_Db_Name, $db_name);
         print "\nRunning tests against the created database...\n";
         $failures += test_created_database();
